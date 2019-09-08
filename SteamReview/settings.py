@@ -14,6 +14,9 @@ BOT_NAME = 'SteamReview'
 SPIDER_MODULES = ['SteamReview.spiders']
 NEWSPIDER_MODULE = 'SteamReview.spiders'
 
+# Feed Format
+FEED_FORMAT = 'json'
+FEED_URI = 'tmp/SteamReviews.json'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'SteamReview (+http://www.yourdomain.com)'

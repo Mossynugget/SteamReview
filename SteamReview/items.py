@@ -29,16 +29,24 @@ class Review(scrapy.Item):
     recommendedInd = scrapy.Field()
     # The number of people who found the review helpful
     helpfulCount = scrapy.Field(
-         output_processor=Compose(
-             MapCompose(
-                 CleanText(),
-                 lambda x: x.replace(',', ''),
-                 convertToInt),
-             max
-         )
+         # output_processor=Compose(
+         #     MapCompose(
+         #         CleanText(),
+         #         lambda x: x.replace(',', ''),
+         #         convertToInt),
+         #     max
+         # )
     )
     # The number of people who found the review funny
-    funnyCount = scrapy.Field()
+    funnyCount = scrapy.Field(
+         # output_processor=Compose(
+         #     MapCompose(
+         #         CleanText(),
+         #         lambda x: x.replace(',', ''),
+         #         convertToInt),
+         #     max
+         # )
+    )
     # The number of hours the user played
     hoursPlayed = scrapy.Field()
     # The date that the review was posted
