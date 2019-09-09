@@ -1,0 +1,10 @@
+Server: nginx/1.15.10
+Content-Type: text/html; charset=UTF-8
+X-Frame-Options: SAMEORIGIN
+Content-Security-Policy: default-src blob: data: https: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://steamcommunity-a.akamaihd.net/ https://api.steampowered.com/ https://steamcdn-a.akamaihd.net/steamcommunity/public/assets/ *.google-analytics.com https://www.google.com https://www.gstatic.com https://apis.google.com https://recaptcha.net https://www.gstatic.cn/recaptcha/; object-src 'none'; connect-src 'self' https://api.steampowered.com/ https://store.steampowered.com/ wss://community.steam-api.com/websocket/ *.google-analytics.com https://*.valvesoftware.com https://*.steambeta.net http://127.0.0.1:27060 ws://127.0.0.1:27060; frame-src 'self' steam: https://store.steampowered.com/ https://www.youtube.com https://www.google.com https://sketchfab.com https://player.vimeo.com https://medal.tv https://www.google.com/recaptcha/ https://recaptcha.net/recaptcha/;
+Cache-Control: public,max-age=60
+Expires: Mon, 09 Sep 2019 21:11:37 GMT
+Last-Modified: Mon, 09 Sep 2019 21:10:00 GMT
+Content-Encoding: gzip
+Vary: Accept-Encoding
+Date: Mon, 09 Sep 2019 21:10:38 GMT

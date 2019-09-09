@@ -4,27 +4,35 @@ from SteamReview.items import Review, ReviewItemLoader
 import json
 from scrapy.loader.processors import TakeFirst
 
-page_number = 1
 filename = 'reviews.txt'
+
+
 # app_id = '1061090'
-api_url = 'https://steamcommunity.com/app/{0}/homecontent/?userreviewsoffset=10&'\
-            'p={1}&workshopitemspage={1}&readytouseitemspage={1}&mtxitemspage={1}&'\
-            'itemspage={1}&screenshotspage={1}&videospage={1}&artpage={1}&'\
-            'allguidepage={1}&webguidepage={1}&integratedguidepage={1}&'\
-            'discussionspage={1}&numperpage=10&browsefilter=toprated&'\
-            'browsefilter=toprated&l=english&appHubSubSection=10&'\
-            'filterLanguage=default&searchText=&forceanon=1'\
 
 
 class SteamReviews(scrapy.Spider):
     name = 'steamReview'
 
-    def __init__(self, appid='1061090', **kwargs):
-        self.start_urls = [api_url.format(appid, page_number)]
+    api_url = 'https://steamcommunity.com/app/{0}/homecontent/' \
+              '?userreviewsoffset={2}&p={1}&workshopitemspage={1}&readytouseitemspage={1}' \
+              '&mtxitemspage={1}&itemspage={1}&screenshotspage={1}&videospage={1}' \
+              '&artpage={1}&allguidepage={1}&webguidepage={1}&integratedguidepage={1}' \
+              '&discussionspage={1}&numperpage=10&browsefilter=toprated&appid={0}' \
+              '&appHubSubSection=10&l=english&filterLanguage=default&forceanon=1' \
+
+    appid = ''
+    page_number = 1
+    page_offset = 10
+
+    def __init__(self, appid='1061090', page_number=1, **kwargs):
+        self.appid = appid
+        self.page_number = page_number
+        self.start_urls = [self.api_url.format(self.appid, self.page_number, self.page_offset)]
         super().__init__(**kwargs)
 
     def parse(self, response):
         reviews = response.css('.apphub_CardContentMain')
+        count = 0
 
         for review in reviews:
             reviewLoader = ItemLoader(item=Review(), selector=review)
@@ -39,9 +47,12 @@ class SteamReviews(scrapy.Spider):
             reviewLoader.add_css('postedDate', '.date_posted::text')
             reviewLoader.add_css('responseCount', '.apphub_CardCommentCount ::text')
             reviewLoader.add_css('content', '.apphub_CardTextContent::text')
+            count += 1
 
             yield reviewLoader.load_item()
 
-        # if reviews['has_next']:
-        #     page_number += 1
-        #     yield scrapy.Request(url=self.api_url.format(app_id, page_number), callback=self.parse)
+        if count != 0:
+            self.page_number += 1
+            self.page_offset = self.page_number*10-10
+            yield scrapy.Request(url=self.api_url.format(self.appid, self.page_number, self.page_offset), callback=self.parse,
+                                 meta={'appid': self.appid, 'page_number': self.page_number})
