@@ -23,36 +23,64 @@ def convertToInt(x):
     except:
         return x
 
+# Convert values to integers
+def convertToFloat(x):
+    x = x.replace(',', '')
+    try:
+        return float(x)
+    except:
+        return x
 
 class Review(scrapy.Item):
+    # The app id for the specified game
+    appId = scrapy.Field(
+          output_processor=Compose(
+             MapCompose(
+                 CleanText(),
+                 convertToInt),
+             max
+          )
+    )
     # An indicator for whether or not the review was identified as useful
     recommendedInd = scrapy.Field()
     # The number of people who found the review helpful
     helpfulCount = scrapy.Field(
-         # output_processor=Compose(
-         #     MapCompose(
-         #         CleanText(),
-         #         lambda x: x.replace(',', ''),
-         #         convertToInt),
-         #     max
-         # )
+          output_processor=Compose(
+              MapCompose(
+                  CleanText(),
+                  convertToInt),
+              max
+          )
     )
     # The number of people who found the review funny
     funnyCount = scrapy.Field(
-         # output_processor=Compose(
-         #     MapCompose(
-         #         CleanText(),
-         #         lambda x: x.replace(',', ''),
-         #         convertToInt),
-         #     max
-         # )
+          output_processor=Compose(
+             MapCompose(
+                 CleanText(),
+                 convertToInt),
+             max
+          )
     )
     # The number of hours the user played
-    hoursPlayed = scrapy.Field()
+    hoursPlayed = scrapy.Field(
+          output_processor=Compose(
+             MapCompose(
+                 CleanText(),
+                 convertToFloat),
+             max
+          )
+    )
     # The date that the review was posted
     postedDate = scrapy.Field()
     # The number of responses on the review
-    responseCount = scrapy.Field()
+    responseCount = scrapy.Field(
+          output_processor=Compose(
+             MapCompose(
+                 CleanText(),
+                 convertToInt),
+             max
+          )
+    )
     # The string content of the review
     content = scrapy.Field(
          input_processor=MapCompose(CleanText()),

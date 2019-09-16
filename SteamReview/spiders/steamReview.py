@@ -37,6 +37,7 @@ class SteamReviews(scrapy.Spider):
         for review in reviews:
             reviewLoader = ItemLoader(item=Review(), selector=review)
 
+            reviewLoader.add_value('appId', self.appid)
             reviewLoader.add_css('recommendedInd', '.title::text')
 
             # # Peer review ratings
@@ -44,7 +45,7 @@ class SteamReviews(scrapy.Spider):
             reviewLoader.add_css('funnyCount', '.found_helpful ::text', re='([\d,]+).*funny')
 
             reviewLoader.add_css('hoursPlayed', '.hours::text', re='(.+) hrs')
-            reviewLoader.add_css('postedDate', '.date_posted::text')
+            reviewLoader.add_css('postedDate', '.date_posted::text', re='Posted: (.+)')
             reviewLoader.add_css('responseCount', '.apphub_CardCommentCount ::text')
             reviewLoader.add_css('content', '.apphub_CardTextContent::text')
             count += 1
