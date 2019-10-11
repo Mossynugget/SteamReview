@@ -17,11 +17,6 @@ AUTOTHROTTLE_MAX_DELAY = 60
 
 HTTPCACHE_ENABLED = True
 
-DATABASE = {
-    'drivername': 'postgres',
-    'host': 'localhost',
-    'port': '5432',
-    'username': 'admin',
-    'password': 'admin',
-    'database': 'SteamReviewScraper'
+ITEM_PIPELINES = {
+   'SteamReview.pipelines.postGrePipeLine': 300,
 }

@@ -1,47 +1,47 @@
-# -*- coding: utf-8 -*-
-
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+import psycopg2
 
 
-# class SteamreviewPipeline(object):
-#     def process_item(self, item, spider):
-#         return item
+class postGrePipeLine(object):
 
+    def open_spider(self, spider):
+        self.connection = psycopg2.connect(database='SteamReviewScraper',
+                                           user='postgres', password='admin', port=5432)
+        self.cur = self.connection.cursor()
 
-from sqlalchemy.orm import sessionmaker
-from .models import Reviews, db_connect, create_reviews_table
-
-
-class LivingSocialPipeline(object):
-    """Livingsocial pipeline for storing scraped items in the database"""
-    def __init__(self):
-        """
-        Initializes database connection and sessionmaker.
-        Creates deals table.
-        """
-        engine = db_connect()
-        create_reviews_table(engine)
-        self.Session = sessionmaker(bind=engine)
+    def close_spider(self, spider):
+        self.cur.close()
+        self.connection.close()
 
     def process_item(self, item, spider):
-        """Save reviews in the database.
+        print("Hello")
+        print(item)
+        print("Hello")
 
-        This method is called for every item pipeline component.
+        if 'helpfulCount' not in item:
+            item['helpfulCount'] = 0
 
-        """
-        session = self.Session()
-        review = Reviews(**item)
+        if 'funnyCount' not in item:
+            item['funnyCount'] = 0
 
-        try:
-            session.add(review)
-            session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
+        if 'responseCount' not in item:
+            item['responseCount'] = 0
 
+        print("Hello")
+        print(item)
+        print("Hello")
+
+        self.cur.execute("INSERT INTO public.\"RawSteamReviews\" (\"RecommendedInd\", \"HelpfulCount\", \"FunnyCount\", " \
+                "\"HoursPlayed\", \"PostedDate\", \"ResponseCount\", \"Content\", \"AppId\") " \
+                "VALUES (%(recommendedInd)s, %(helpfulCount)s, %(funnyCount)s, %(hoursPlayed)s, %(postedDate)s, " \
+                "%(responseCount)s, %(content)s, %(appId)s); ", item)
+
+        # self.cur.execute("INSERT INTO public.\"RawSteamReviews\" (\"RecommendedInd\"" \
+        #         "\"HoursPlayed\", \"PostedDate\", \"Content\", \"AppId\") " \
+        #         "VALUES (%(recommendedInd)s, %(hoursPlayed)s, %(postedDate)s, " \
+        #         "%(content)s, %(appId)s); ", item)
+        self.cur.execute("INSERT INTO public.\"RawSteamReviews\" (\"RecommendedInd\", "
+                         "\"HoursPlayed\", \"PostedDate\", \"Content\", \"AppId\") "
+                         "VALUES (%(recommendedInd)s, %(hoursPlayed)s, %(postedDate)s, "
+                         "%(content)s, %(appId)s); ", item)
+        self.connection.commit()
         return item

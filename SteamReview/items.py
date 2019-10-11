@@ -41,6 +41,7 @@ class Review(scrapy.Item):
              max
           )
     )
+    appId.setdefault('0')
     # An indicator for whether or not the review was identified as useful
     recommendedInd = scrapy.Field()
     # The number of people who found the review helpful
@@ -52,6 +53,7 @@ class Review(scrapy.Item):
               max
           )
     )
+    helpfulCount.setdefault(0)
     # The number of people who found the review funny
     funnyCount = scrapy.Field(
           output_processor=Compose(
@@ -61,6 +63,7 @@ class Review(scrapy.Item):
              max
           )
     )
+    funnyCount.setdefault(0)
     # The number of hours the user played
     hoursPlayed = scrapy.Field(
           output_processor=Compose(
@@ -70,6 +73,7 @@ class Review(scrapy.Item):
              max
           )
     )
+    hoursPlayed.setdefault(0)
     # The date that the review was posted
     postedDate = scrapy.Field()
     # The number of responses on the review
@@ -81,6 +85,7 @@ class Review(scrapy.Item):
              max
           )
     )
+    responseCount.setdefault(0)
     # The string content of the review
     content = scrapy.Field(
          input_processor=MapCompose(CleanText()),

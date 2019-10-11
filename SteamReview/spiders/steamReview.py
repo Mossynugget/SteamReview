@@ -11,31 +11,8 @@ filename = 'reviews.txt'
 # app_id = '1061090'
 
 
-def importData():
-    conn = psycopg2.connect(database='SteamReviewScraper',
-                            user='postgres', password='admin', port=5432)
-    cursor = conn.cursor()
-    rowOfData = []
-
-    print("row")
-
-    with open('SteamReviews.json') as data_file:
-        data = json.load(data_file)
-        for row in data.values():
-            rowOfData.append(row)
-            query = "INSERT INTO public.\"RawSteamReviews\" (\"RecommendedInd\", \"HelpfulCount\", \"FunnyCount\", " \
-                    "\"HoursPlayed\", \"PostedDate\", \"ResponseCount\", \"Content\", \"AppId\") " \
-                    "VALUES (%(RecommendedInd)s, %(HelpfulCount)s, %(FunnyCount)s, %(HoursPlayed)s, %(PostedDate)s, " \
-                    "%(ResponseCount)s, %(Content)s, %(AppId)s); "
-
-            cursor.execute(query, rowOfData)
-
-    # query = "INSERT INTO public.\"RawSteamReviews\" (\"RecommendedInd\", \"HelpfulCount\", \"FunnyCount\", " \
-    #         "\"HoursPlayed\", \"PostedDate\", \"ResponseCount\", \"Content\", \"AppId\") " \
-    #         "VALUES ('Test', 4, 4, 4, 'Test', 4, 'Test', 4); "
-    # cursor.execute(query)
-    # Commit the transaction
-    conn.commit()
+def analyseData():
+    print("Do something")
 
 class SteamReviews(scrapy.Spider):
     name = 'steamReview'
@@ -84,5 +61,5 @@ class SteamReviews(scrapy.Spider):
             self.page_offset = self.page_number*10-10
             yield scrapy.Request(url=self.api_url.format(self.appid, self.page_number, self.page_offset), callback=self.parse,
                                  meta={'appid': self.appid, 'page_number': self.page_number})
-        else:
-            importData()
+        # else:
+        #     analyseData()
