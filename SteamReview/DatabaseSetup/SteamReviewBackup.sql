@@ -157,7 +157,7 @@ CREATE TABLE public."RawSteamReviews" (
     "HelpfulCount" integer,
     "FunnyCount" integer,
     "HoursPlayed" integer,
-    "PostedDate" date,
+    "PostedDate" text,
     "ResponseCount" integer,
     "Content" text,
     "AppId" integer DEFAULT 0,
@@ -307,46 +307,6 @@ ALTER TABLE ONLY public."SynonymAspects" ALTER COLUMN "SynonymAspectId" SET DEFA
 --
 
 ALTER TABLE ONLY public."SynonymAspects" ALTER COLUMN "AspectId" SET DEFAULT nextval('public."SynonymAspects_AspectId_seq"'::regclass);
-
-
---
--- TOC entry 2854 (class 0 OID 16409)
--- Dependencies: 199
--- Data for Name: Aspects; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public."Aspects" ("AspectId", "AspectName") FROM stdin;
-\.
-
-
---
--- TOC entry 2861 (class 0 OID 16443)
--- Dependencies: 206
--- Data for Name: NormalizedSentiments; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public."NormalizedSentiments" ("NormalizedAspectId", "RawSteamReviewId", "SynonymAspectId", "Sentiment") FROM stdin;
-\.
-
-
---
--- TOC entry 2852 (class 0 OID 16396)
--- Dependencies: 197
--- Data for Name: RawSteamReviews; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public."RawSteamReviews" ("RawSteamReviewId", "RecommendedInd", "HelpfulCount", "FunnyCount", "HoursPlayed", "PostedDate", "ResponseCount", "Content", "AppId", "NormalisedInd") FROM stdin;
-\.
-
-
---
--- TOC entry 2857 (class 0 OID 16422)
--- Dependencies: 202
--- Data for Name: SynonymAspects; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public."SynonymAspects" ("SynonymAspectId", "AspectId", "SynonymAspectName") FROM stdin;
-\.
 
 
 --

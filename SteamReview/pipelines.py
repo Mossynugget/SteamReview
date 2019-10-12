@@ -3,8 +3,12 @@ from collections import OrderedDict
 import numpy as np
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
+from wordcloud import WordCloud
+from collections import defaultdict
 
 nlp = spacy.load("en_core_web_sm")
+
+
 class postGrePipeLine(object):
 
     def open_spider(self, spider):
@@ -16,6 +20,20 @@ class postGrePipeLine(object):
         self.clearDatabase()
 
     def close_spider(self, spider):
+        self.cur.execute(
+            "SELECT \"Keyword\", SUM(\"Weighting\")"
+            " FROM public.\"NormalizedSentiments\""
+            " WHERE \"Weighting\" != double precision 'NaN'"
+            " GROUP BY \"Keyword\""
+            " ORDER BY SUM(\"Weighting\") DESC "
+            " LIMIT 100")
+        data = defaultdict(list)
+        for record in self.cur:
+            data[record[0]] = float(record[1])
+        print(data)
+        wc = WordCloudHelper()
+        wc.generateWordCloud(data)
+
         self.cur.close()
         self.connection.close()
 
@@ -29,25 +47,52 @@ class postGrePipeLine(object):
         if 'responseCount' not in item:
             item['responseCount'] = 0
 
-        self.cur.execute("INSERT INTO public.\"RawSteamReviews\" (\"RecommendedInd\", \"HelpfulCount\", \"FunnyCount\", " \
-                "\"HoursPlayed\", \"PostedDate\", \"ResponseCount\", \"Content\", \"AppId\") " \
-                "VALUES (%(recommendedInd)s, %(helpfulCount)s, %(funnyCount)s, %(hoursPlayed)s, %(postedDate)s, " \
-                "%(responseCount)s, %(content)s, %(appId)s); ", item)
+        self.cur.execute(
+            "INSERT INTO public.\"RawSteamReviews\" (\"RecommendedInd\", \"HelpfulCount\", \"FunnyCount\", "
+            "\"HoursPlayed\", \"PostedDate\", \"ResponseCount\", \"Content\", \"AppId\") "
+            "VALUES (%(recommendedInd)s, %(helpfulCount)s, %(funnyCount)s, %(hoursPlayed)s, %(postedDate)s, "
+            "%(responseCount)s, %(content)s, %(appId)s);", item)
 
-
-        results = nlp(item['content'])
-
-        print([chunk.text for chunk in results.noun_chunks])
+        # id_of_new_row = self.cur.fetchone()[0]
+        # print(str(id_of_new_row))
+        # results = nlp(item['content'])
+        #
+        # print([chunk.text for chunk in results.noun_chunks])
 
         tr4w = TextRank4Keyword()
         tr4w.analyze(item['content'], candidate_pos=['NOUN', 'PROPN'], window_size=4, lower=False)
-        tr4w.get_keywords(10)
+
+        keywords = tr4w.get_keywords(10)
+        print(keywords);
+        for i, (key, value) in enumerate(keywords.items()):
+            self.cur.execute("INSERT INTO public.\"NormalizedSentiments\" (\"Keyword\", "
+                             "\"Weighting\") VALUES (%s, %s); ", (key, str(value)))
+            if i > 10:
+                break
 
         self.connection.commit()
         return item
 
     def clearDatabase(self):
+        self.cur.execute("DELETE FROM public.\"NormalizedSentiments\"")
         self.cur.execute("DELETE FROM public.\"RawSteamReviews\"")
+        self.connection.commit()
+
+
+class WordCloudHelper():
+    background_color = "#101010"
+    height = 720
+    width = 1080
+
+    def generateWordCloud(self, data):
+        word_cloud = WordCloud(
+            background_color=self.background_color,
+            width=self.width,
+            height=self.height
+        )
+
+        word_cloud.generate_from_frequencies(data)
+        word_cloud.to_file('WordCloud.png')
 
 
 class TextRank4Keyword():
@@ -132,6 +177,7 @@ class TextRank4Keyword():
             print(key + ' - ' + str(value))
             if i > number:
                 break
+        return node_weight
 
     def analyze(self, text,
                 candidate_pos=['NOUN', 'PROPN'],
