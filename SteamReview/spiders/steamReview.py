@@ -10,6 +10,8 @@ filename = 'reviews.txt'
 
 # app_id = '1061090'
 
+def clearDatabase():
+    print("Do something")
 
 def analyseData():
     print("Do something")
