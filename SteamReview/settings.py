@@ -3,8 +3,8 @@ BOT_NAME = 'SteamReview'
 SPIDER_MODULES = ['SteamReview.spiders']
 NEWSPIDER_MODULE = 'SteamReview.spiders'
 
-FEED_FORMAT = 'json'
-FEED_URI = 'tmp/SteamReviews.json'
+# FEED_FORMAT = 'json'
+# FEED_URI = 'tmp/SteamReviews.json'
 
 ROBOTSTXT_OBEY = True
 

@@ -20,6 +20,8 @@ class postGrePipeLine(object):
         self.clearDatabase()
 
     def close_spider(self, spider):
+        wc = WordCloudHelper()
+
         self.cur.execute(
             "SELECT \"Keyword\", SUM(\"Weighting\")"
             " FROM public.\"NormalizedSentiments\""
@@ -30,9 +32,38 @@ class postGrePipeLine(object):
         data = defaultdict(list)
         for record in self.cur:
             data[record[0]] = float(record[1])
-        print(data)
-        wc = WordCloudHelper()
-        wc.generateWordCloud(data)
+        if len(data) > 0:
+            wc.generateWordCloud(data, 'tmp/WordCloud')
+
+        data.clear()
+        self.cur.execute(
+            "SELECT \"Keyword\", SUM(\"Weighting\")"
+            " FROM public.\"NormalizedSentiments\""
+            " WHERE \"Weighting\" != double precision 'NaN'"
+            " AND \"Positive\" = 1"
+            " GROUP BY \"Keyword\""
+            " ORDER BY SUM(\"Weighting\") DESC "
+            " LIMIT 100")
+        data = defaultdict(list)
+        for record in self.cur:
+            data[record[0]] = float(record[1])
+        if len(data) > 0:
+            wc.generateWordCloud(data, 'tmp/PositiveWordCloud')
+
+        data.clear()
+        self.cur.execute(
+            "SELECT \"Keyword\", SUM(\"Weighting\")"
+            " FROM public.\"NormalizedSentiments\""
+            " WHERE \"Weighting\" != double precision 'NaN'"
+            " AND \"Positive\" = 0"
+            " GROUP BY \"Keyword\""
+            " ORDER BY SUM(\"Weighting\") DESC "
+            " LIMIT 100")
+        for record in self.cur:
+            data[record[0]] = float(record[1])
+
+        if len(data) > 0:
+            wc.generateWordCloud(data, 'tmp/NegativeWordCloud')
 
         self.cur.close()
         self.connection.close()
@@ -62,11 +93,18 @@ class postGrePipeLine(object):
         tr4w = TextRank4Keyword()
         tr4w.analyze(item['content'], candidate_pos=['NOUN', 'PROPN'], window_size=4, lower=False)
 
+        print(item['recommendedInd'])
+
+        if "Not" not in item['recommendedInd']:
+            positive = 1
+        else:
+            positive = 0
+
         keywords = tr4w.get_keywords(10)
         print(keywords);
         for i, (key, value) in enumerate(keywords.items()):
             self.cur.execute("INSERT INTO public.\"NormalizedSentiments\" (\"Keyword\", "
-                             "\"Weighting\") VALUES (%s, %s); ", (key, str(value)))
+                             "\"Weighting\", \"Positive\") VALUES (%s, %s, %s); ", (key, str(value), positive))
             if i > 10:
                 break
 
@@ -79,12 +117,12 @@ class postGrePipeLine(object):
         self.connection.commit()
 
 
-class WordCloudHelper():
+class WordCloudHelper:
     background_color = "#101010"
     height = 720
     width = 1080
 
-    def generateWordCloud(self, data):
+    def generateWordCloud(self, data, filename):
         word_cloud = WordCloud(
             background_color=self.background_color,
             width=self.width,
@@ -92,7 +130,7 @@ class WordCloudHelper():
         )
 
         word_cloud.generate_from_frequencies(data)
-        word_cloud.to_file('WordCloud.png')
+        word_cloud.to_file(filename+'.png')
 
 
 class TextRank4Keyword():

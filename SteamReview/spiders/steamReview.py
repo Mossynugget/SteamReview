@@ -5,16 +5,7 @@ from SteamReview.items import Review, ReviewItemLoader
 import json
 from scrapy.loader.processors import TakeFirst
 
-filename = 'reviews.txt'
-
-
 # app_id = '1061090'
-
-def clearDatabase():
-    print("Do something")
-
-def analyseData():
-    print("Do something")
 
 class SteamReviews(scrapy.Spider):
     name = 'steamReview'
