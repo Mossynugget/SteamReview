@@ -32,6 +32,8 @@ class postGrePipeLine(object):
         data = defaultdict(list)
         for record in self.cur:
             data[record[0]] = float(record[1])
+            if data[record[0]] > 10:
+                data[record[0]] = 10
         if len(data) > 0:
             wc.generateWordCloud(data, 'tmp/WordCloud')
 
@@ -47,6 +49,9 @@ class postGrePipeLine(object):
         data = defaultdict(list)
         for record in self.cur:
             data[record[0]] = float(record[1])
+            if data[record[0]] > 10:
+                data[record[0]] = 10
+
         if len(data) > 0:
             wc.generateWordCloud(data, 'tmp/PositiveWordCloud')
 
@@ -61,6 +66,8 @@ class postGrePipeLine(object):
             " LIMIT 100")
         for record in self.cur:
             data[record[0]] = float(record[1])
+            if data[record[0]] > 10:
+                data[record[0]] = 10
 
         if len(data) > 0:
             wc.generateWordCloud(data, 'tmp/NegativeWordCloud')
@@ -103,10 +110,12 @@ class postGrePipeLine(object):
         keywords = tr4w.get_keywords(10)
         print(keywords);
         for i, (key, value) in enumerate(keywords.items()):
-            self.cur.execute("INSERT INTO public.\"NormalizedSentiments\" (\"Keyword\", "
-                             "\"Weighting\", \"Positive\") VALUES (%s, %s, %s); ", (key, str(value), positive))
-            if i > 10:
-                break
+            # Ensure that the item doesn't exist in the blacklist.
+            if key not in blacklist:
+                self.cur.execute("INSERT INTO public.\"NormalizedSentiments\" (\"Keyword\", "
+                                 "\"Weighting\", \"Positive\") VALUES (%s, %s, %s); ", (key, str(value), positive))
+                if i > 10:
+                    break
 
         self.connection.commit()
         return item
@@ -258,3 +267,5 @@ class TextRank4Keyword():
             node_weight[word] = pr[index]
 
         self.node_weight = node_weight
+
+blacklist = ["game", "Game", "Games", "games"]

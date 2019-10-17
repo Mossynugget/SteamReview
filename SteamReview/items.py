@@ -43,7 +43,10 @@ class Review(scrapy.Item):
     )
     appId.setdefault('0')
     # An indicator for whether or not the review was identified as useful
-    recommendedInd = scrapy.Field()
+    recommendedInd = scrapy.Field(
+         input_processor=MapCompose(CleanText()),
+         output_processor=Compose(Join('\n'), CleanText())
+    )
     # The number of people who found the review helpful
     helpfulCount = scrapy.Field(
           output_processor=Compose(
